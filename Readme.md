@@ -4,6 +4,9 @@ A simple e-commerce API built with Go and Echo framework that helps you manage p
 
 ## Getting Started
 
+If you have docker & docker-compose, we can simply run ```docker-compose up -d```
+if it is not installed follow instruction bellow.
+
 First, make sure we have:
 - Go installed
 - PostgreSQL running

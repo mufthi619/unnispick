@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      - DATABASE_URL=postgresql://k-style:pass2login@db:5432/k-style?sslmode=disable
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=4000
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=k-style
+      - DATABASE_PASSWORD=pass2login
+      - DATABASE_NAME=k-style
+      - DATABASE_SSLMODE=disable
+      - DATABASE_POOL_MAX_OPEN=10
+      - DATABASE_POOL_MAX_IDLE=5
+      - DATABASE_POOL_MAX_LIFETIME=1h
+      - TELEMETRY_SERVICE_NAME=ecommerce-service
+      - TELEMETRY_SERVICE_VERSION=1.0.0
+      - TELEMETRY_ENVIRONMENT=development
+      - TELEMETRY_OTLP_ENDPOINT=otel-collector:4317
+      - LOGGER_LEVEL=debug
+      - LOGGER_ENVIRONMENT=development
+    depends_on:
+      - db
+      - otel-collector
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - ./migrations:/app/migrations
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=k-style
+      - POSTGRES_PASSWORD=pass2login
+      - POSTGRES_DB=k-style
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U k-style"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  otel-collector:
+    image: otel/opentelemetry-collector:0.90.1
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./config/telemetry/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+      - "8888:8888"   # Prometheus metrics exposed by the collector
+      - "8889:8889"   # Prometheus exporter metrics
+    networks:
+      - app-network
+    depends_on:
+      - jaeger
+      - prometheus
+
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    volumes:
+      - ./config/telemetry/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - app-network
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.50
+    ports:
+      - "16686:16686"   # Web UI
+      - "14250:14250"   # Model used by jaeger-collector
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  prometheus_data:

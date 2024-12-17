@@ -5,6 +5,7 @@ import (
 	"Unnispick/internal/domain/delivery/http/middleware"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Router struct {
@@ -34,6 +35,9 @@ func (r *Router) Setup() {
 	r.e.Use(echoMiddleware.Recover())
 	r.e.Use(echoMiddleware.CORS())
 	r.e.Use(r.telemetryMiddle.Middleware())
+
+	// Metrics endpoint
+	r.e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
 
 	// Health Check
 	r.e.GET("/health", func(c echo.Context) error {

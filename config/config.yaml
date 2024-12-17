@@ -1,5 +1,5 @@
 server:
-  host: "localhost"
+  host: "0.0.0.0"
   port: 4000
   timeout:
     read: 3s
@@ -7,7 +7,7 @@ server:
     idle: 60s
 
 database:
-  host: "localhost"
+  host: "db"
   port: 5432
   user: "k-style"
   password: "pass2login"
@@ -22,7 +22,7 @@ telemetry:
   service_name: "ecommerce-service"
   service_version: "1.0.0"
   environment: "development"
-  otlp_endpoint: "localhost:4317"
+  otlp_endpoint: "otel-collector:4317"
 
 logger:
   level: "debug"
