@@ -1,0 +1,525 @@
+basePath: /api/v1
+definitions:
+  entity.BrandResponse:
+    properties:
+      brand_name:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  entity.CreateBrandRequest:
+    properties:
+      brand_name:
+        maxLength: 255
+        minLength: 1
+        type: string
+    required:
+    - brand_name
+    type: object
+  entity.CreateProductRequest:
+    properties:
+      brand_id:
+        type: string
+      price:
+        type: number
+      product_name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      quantity:
+        minimum: 0
+        type: integer
+    required:
+    - brand_id
+    - price
+    - product_name
+    - quantity
+    type: object
+  entity.ProductResponse:
+    properties:
+      brand:
+        $ref: '#/definitions/entity.BrandResponse'
+      brand_id:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      price:
+        type: number
+      product_name:
+        type: string
+      quantity:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  entity.UpdateBrandRequest:
+    properties:
+      brand_name:
+        maxLength: 255
+        minLength: 1
+        type: string
+    required:
+    - brand_name
+    type: object
+  entity.UpdateProductRequest:
+    properties:
+      brand_id:
+        type: string
+      price:
+        type: number
+      product_name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      quantity:
+        minimum: 0
+        type: integer
+    required:
+    - brand_id
+    - price
+    - product_name
+    - quantity
+    type: object
+  response_formatter.Meta:
+    properties:
+      page:
+        type: integer
+      per_page:
+        type: integer
+      total:
+        type: integer
+      total_page:
+        type: integer
+    type: object
+  response_formatter.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      errors:
+        items:
+          type: string
+        type: array
+      message:
+        type: string
+      meta:
+        $ref: '#/definitions/response_formatter.Meta'
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: admin@k-stylehub.com
+    name: API Support
+  description: This is the API server for Unnispick Korean beauty and fashion products
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Unnispick K-Style API
+  version: "1.0"
+paths:
+  /brands:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all brands with pagination support
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 10)'
+        in: query
+        name: per_page
+        type: integer
+      - description: Search term for brand name
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response_formatter.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entity.BrandResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+      summary: Get all brands with pagination
+      tags:
+      - brands
+    post:
+      consumes:
+      - application/json
+      description: Create a new brand with the provided information
+      parameters:
+      - description: Brand creation request
+        in: body
+        name: brand
+        required: true
+        schema:
+          $ref: '#/definitions/entity.CreateBrandRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response_formatter.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.BrandResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+      summary: Create a new brand
+      tags:
+      - brands
+  /brands/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a brand by its ID
+      parameters:
+      - description: Brand ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+      summary: Delete a brand
+      tags:
+      - brands
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information about a brand by its ID
+      parameters:
+      - description: Brand ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response_formatter.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.BrandResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+      summary: Get a brand by ID
+      tags:
+      - brands
+    put:
+      consumes:
+      - application/json
+      description: Update a brand's information by its ID
+      parameters:
+      - description: Brand ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Brand update request
+        in: body
+        name: brand
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UpdateBrandRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response_formatter.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.BrandResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+      summary: Update a brand
+      tags:
+      - brands
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all products with pagination and filtering support
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 10)'
+        in: query
+        name: per_page
+        type: integer
+      - description: Filter by brand ID
+        in: query
+        name: brand_id
+        type: string
+      - description: Minimum price filter
+        in: query
+        name: min_price
+        type: number
+      - description: Maximum price filter
+        in: query
+        name: max_price
+        type: number
+      - description: Minimum quantity filter
+        in: query
+        name: min_qty
+        type: integer
+      - description: Maximum quantity filter
+        in: query
+        name: max_qty
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response_formatter.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entity.ProductResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+      summary: Get all products with pagination and filters
+      tags:
+      - products
+    post:
+      consumes:
+      - application/json
+      description: Create a new product with the provided information
+      parameters:
+      - description: Product creation request
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/entity.CreateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response_formatter.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.ProductResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+      summary: Create a new product
+      tags:
+      - products
+  /products/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a product by its ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+      summary: Delete a product
+      tags:
+      - products
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information about a product by its ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response_formatter.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.ProductResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+      summary: Get a product by ID
+      tags:
+      - products
+    put:
+      consumes:
+      - application/json
+      description: Update a product's information by its ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Product update request
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UpdateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response_formatter.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.ProductResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response_formatter.Response'
+      summary: Update a product
+      tags:
+      - products
+schemes:
+- http
+swagger: "2.0"

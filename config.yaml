@@ -1,0 +1,29 @@
+server:
+  host: "localhost"
+  port: 4000
+  timeout:
+    read: 3s
+    write: 5s
+    idle: 60s
+
+database:
+  host: "localhost"
+  port: 5432
+  user: "k-style"
+  password: "pass2login"
+  name: "k-style"
+  sslmode: "disable"
+  pool:
+    max_open: 10
+    max_idle: 5
+    max_lifetime: 1h
+
+telemetry:
+  service_name: "ecommerce-service"
+  service_version: "1.0.0"
+  environment: "development"
+  otlp_endpoint: "localhost:4317"
+
+logger:
+  level: "debug"
+  environment: "development"
